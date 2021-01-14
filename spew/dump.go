@@ -78,7 +78,7 @@ func (d *dumpState) unpackValue(v reflect.Value) reflect.Value {
 }
 
 // dumpPtr handles formatting of pointers by indirecting them as necessary.
-func (d *dumpState) dumpPtr(v reflect.Value) {
+func (d *dumpState) dumpPtr(v reflect.Value, asInterface bool) {
 	// Remove pointers at or below the current depth from map used to detect
 	// circular refs.
 	for k, depth := range d.pointers {
@@ -122,11 +122,16 @@ func (d *dumpState) dumpPtr(v reflect.Value) {
 		}
 	}
 
+	parens := false
+
 	// Display type information.
-	d.w.Write(openParenBytes)
-	d.w.Write(bytes.Repeat(asteriskBytes, indirects))
-	d.w.Write([]byte(ve.Type().String()))
-	d.w.Write(closeParenBytes)
+	if asInterface || !d.cs.SkipType {
+		d.w.Write(openParenBytes)
+		d.w.Write(bytes.Repeat(asteriskBytes, indirects))
+		d.w.Write([]byte(ve.Type().String()))
+		d.w.Write(closeParenBytes)
+		parens = true
+	}
 
 	// Display pointer information.
 	if !d.cs.DisablePointerAddresses && len(pointerChain) > 0 {
@@ -138,10 +143,13 @@ func (d *dumpState) dumpPtr(v reflect.Value) {
 			printHexPtr(d.w, addr)
 		}
 		d.w.Write(closeParenBytes)
+		parens = true
 	}
 
 	// Display dereferenced value.
-	d.w.Write(openParenBytes)
+	if parens {
+		d.w.Write(openParenBytes)
+	}
 	switch {
 	case nilFound:
 		d.w.Write(nilAngleBytes)
@@ -151,9 +159,11 @@ func (d *dumpState) dumpPtr(v reflect.Value) {
 
 	default:
 		d.ignoreNextType = true
-		d.dump(ve)
+		d.dump(ve, false)
 	}
-	d.w.Write(closeParenBytes)
+	if parens {
+		d.w.Write(closeParenBytes)
+	}
 }
 
 // dumpSlice handles formatting of arrays and slices.  Byte (uint8 under
@@ -233,9 +243,11 @@ func (d *dumpState) dumpSlice(v reflect.Value) {
 		return
 	}
 
+	asInterface := v.Type().Elem().Kind() == reflect.Interface
+
 	// Recursively call dump for each item.
 	for i := 0; i < numEntries; i++ {
-		d.dump(d.unpackValue(v.Index(i)))
+		d.dump(d.unpackValue(v.Index(i)), asInterface)
 		if i < (numEntries - 1) {
 			d.w.Write(commaNewlineBytes)
 		} else {
@@ -248,7 +260,7 @@ func (d *dumpState) dumpSlice(v reflect.Value) {
 // value to figure out what kind of object we are dealing with and formats it
 // appropriately.  It is a recursive function, however circular data structures
 // are detected and handled properly.
-func (d *dumpState) dump(v reflect.Value) {
+func (d *dumpState) dump(v reflect.Value, asInterface bool) {
 	// Handle invalid reflect values immediately.
 	kind := v.Kind()
 	if kind == reflect.Invalid {
@@ -259,17 +271,21 @@ func (d *dumpState) dump(v reflect.Value) {
 	// Handle pointers specially.
 	if kind == reflect.Ptr {
 		d.indent()
-		d.dumpPtr(v)
+		d.dumpPtr(v, asInterface)
 		return
 	}
+
+	writeType := asInterface || !d.cs.SkipType
 
 	// Print type information unless already handled elsewhere.
 	if !d.ignoreNextType {
 		d.indent()
-		d.w.Write(openParenBytes)
-		d.w.Write([]byte(v.Type().String()))
-		d.w.Write(closeParenBytes)
-		d.w.Write(spaceBytes)
+		if writeType {
+			d.w.Write(openParenBytes)
+			d.w.Write([]byte(v.Type().String()))
+			d.w.Write(closeParenBytes)
+			d.w.Write(spaceBytes)
+		}
 	}
 	d.ignoreNextType = false
 
@@ -282,7 +298,7 @@ func (d *dumpState) dump(v reflect.Value) {
 	case reflect.Map, reflect.String:
 		valueLen = v.Len()
 	}
-	if valueLen != 0 || !d.cs.DisableCapacities && valueCap != 0 {
+	if !d.cs.DisableCapacities && (valueLen != 0 || valueCap != 0) {
 		d.w.Write(openParenBytes)
 		if valueLen != 0 {
 			d.w.Write(lenEqualsBytes)
@@ -387,11 +403,13 @@ func (d *dumpState) dump(v reflect.Value) {
 			if d.cs.SortKeys {
 				sortValues(keys, d.cs)
 			}
+			keyAsInterface := v.Type().Key().Kind() == reflect.Interface
+			valueAsInterface := v.Type().Elem().Kind() == reflect.Interface
 			for i, key := range keys {
-				d.dump(d.unpackValue(key))
+				d.dump(d.unpackValue(key), keyAsInterface)
 				d.w.Write(colonSpaceBytes)
 				d.ignoreNextIndent = true
-				d.dump(d.unpackValue(v.MapIndex(key)))
+				d.dump(d.unpackValue(v.MapIndex(key)), valueAsInterface)
 				if i < (numEntries - 1) {
 					d.w.Write(commaNewlineBytes)
 				} else {
@@ -413,12 +431,21 @@ func (d *dumpState) dump(v reflect.Value) {
 			vt := v.Type()
 			numFields := v.NumField()
 			for i := 0; i < numFields; i++ {
-				d.indent()
+				vf := v.Field(i)
+				if d.cs.SkipZero && vf.IsZero() {
+					continue
+				}
 				vtf := vt.Field(i)
+
+				if d.cs.SkipField != nil && d.cs.SkipField(v, vf, vtf) {
+					continue
+				}
+
+				d.indent()
 				d.w.Write([]byte(vtf.Name))
 				d.w.Write(colonSpaceBytes)
 				d.ignoreNextIndent = true
-				d.dump(d.unpackValue(v.Field(i)))
+				d.dump(d.unpackValue(vf), vtf.Type.Kind() == reflect.Interface)
 				if i < (numFields - 1) {
 					d.w.Write(commaNewlineBytes)
 				} else {
@@ -462,7 +489,7 @@ func fdump(cs *ConfigState, w io.Writer, a ...interface{}) {
 
 		d := dumpState{w: w, cs: cs}
 		d.pointers = make(map[uintptr]int)
-		d.dump(reflect.ValueOf(arg))
+		d.dump(reflect.ValueOf(arg), false)
 		d.w.Write(newlineBytes)
 	}
 }

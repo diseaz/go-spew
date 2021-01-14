@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 )
 
 // ConfigState houses the configuration options used by spew to format and
@@ -98,6 +99,19 @@ type ConfigState struct {
 	// be spewed to strings and sorted by those strings.  This is only
 	// considered if SortKeys is true.
 	SpewKeys bool
+
+	// Skip struct fields with zero values.
+	SkipZero bool
+
+	// Skip struct fields conditionally.
+	//
+	// - v = struct value
+	// - vf = field value
+	// - vtf = struct field description
+	SkipField func(v reflect.Value, vf reflect.Value, vtf reflect.StructField) bool
+
+	// Skip type name if not referenced via interface.
+	SkipType bool
 }
 
 // Config is the active configuration of the top-level functions.

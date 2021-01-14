@@ -202,7 +202,7 @@ func initSpewTests() {
 		{scsNoPtrAddr, fCSFprint, "", tptr, "<*>{<*>{}}"},
 		{scsNoPtrAddr, fCSSdump, "", tptr, "(*spew_test.ptrTester)({\ns: (*struct {})({\n})\n})\n"},
 		{scsNoCap, fCSSdump, "", make([]string, 0, 10), "([]string) {\n}\n"},
-		{scsNoCap, fCSSdump, "", make([]string, 1, 10), "([]string) (len=1) {\n(string) \"\"\n}\n"},
+		{scsNoCap, fCSSdump, "", make([]string, 1, 10), "([]string) {\n(string) \"\"\n}\n"},
 	}
 }
 
