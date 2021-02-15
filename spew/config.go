@@ -118,6 +118,17 @@ type ConfigState struct {
 // The configuration can be changed by modifying the contents of spew.Config.
 var Config = ConfigState{Indent: " "}
 
+var Compact = ConfigState{
+	Indent:                  "  ",
+	DisablePointerAddresses: true,
+	DisableCapacities:       true,
+	ContinueOnMethod:        true,
+	SortKeys:                true,
+	SpewKeys:                true,
+	SkipZero:                true,
+	SkipType:                true,
+}
+
 // Errorf is a wrapper for fmt.Errorf that treats each argument as if it were
 // passed with a Formatter interface returned by c.NewFormatter.  It returns
 // the formatted string as a value that satisfies error.  See NewFormatter
