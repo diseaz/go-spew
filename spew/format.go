@@ -104,8 +104,8 @@ func (f *formatState) unpackValue(v reflect.Value) reflect.Value {
 // formatPtr handles formatting of pointers by indirecting them as necessary.
 func (f *formatState) formatPtr(v reflect.Value) {
 	// Display nil if top level pointer is nil.
-	showTypes := f.fs.Flag('#')
-	if v.IsNil() && (!showTypes || f.ignoreNextType) {
+	showTypes := f.fs.Flag('#') && !f.ignoreNextType
+	if v.IsNil() && !showTypes {
 		f.fs.Write(nilAngleBytes)
 		return
 	}
@@ -154,7 +154,7 @@ func (f *formatState) formatPtr(v reflect.Value) {
 	}
 
 	// Display type or indirection level depending on flags.
-	if showTypes && !f.ignoreNextType {
+	if showTypes {
 		f.fs.Write(openParenBytes)
 		f.fs.Write(bytes.Repeat(asteriskBytes, indirects))
 		f.fs.Write([]byte(ve.Type().String()))
@@ -239,7 +239,7 @@ func (f *formatState) format(v reflect.Value) {
 		printBool(f.fs, v.Bool())
 
 	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int:
-		printInt(f.fs, v.Int(), 10)
+		printInt(f.fs, v.Int())
 
 	case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uint:
 		printUint(f.fs, v.Uint(), 10)

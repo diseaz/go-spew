@@ -69,7 +69,7 @@ var hexDigits = "0123456789abcdef"
 
 // catchPanic handles any panics that might occur during the handleMethods
 // calls.
-func catchPanic(w io.Writer, v reflect.Value) {
+func catchPanic(w io.Writer, _ reflect.Value) {
 	if err := recover(); err != nil {
 		w.Write(panicBytes)
 		fmt.Fprintf(w, "%v", err)
@@ -150,8 +150,8 @@ func printBool(w io.Writer, val bool) {
 }
 
 // printInt outputs a signed integer value to Writer w.
-func printInt(w io.Writer, val int64, base int) {
-	w.Write([]byte(strconv.FormatInt(val, base)))
+func printInt(w io.Writer, val int64) {
+	w.Write([]byte(strconv.FormatInt(val, 10)))
 }
 
 // printUint outputs an unsigned integer value to Writer w.

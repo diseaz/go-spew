@@ -31,9 +31,6 @@ const (
 	// UnsafeDisabled is a build-time constant which specifies whether or
 	// not access to the unsafe package is available.
 	UnsafeDisabled = false
-
-	// ptrSize is the size of a pointer on the current arch.
-	ptrSize = unsafe.Sizeof((*byte)(nil))
 )
 
 type flag uintptr
@@ -94,6 +91,7 @@ func unsafeReflectValue(v reflect.Value) reflect.Value {
 	if !v.IsValid() || (v.CanInterface() && v.CanAddr()) {
 		return v
 	}
+
 	flagFieldPtr := flagField(&v)
 	*flagFieldPtr &^= flagRO
 	*flagFieldPtr |= flagAddr

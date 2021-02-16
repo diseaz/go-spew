@@ -212,6 +212,7 @@ func TestSpew(t *testing.T) {
 
 	t.Logf("Running %d tests", len(spewTests))
 	for i, test := range spewTests {
+		test := test
 		buf := new(bytes.Buffer)
 		switch test.f {
 		case fCSFdump:

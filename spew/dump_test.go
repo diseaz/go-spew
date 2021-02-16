@@ -80,7 +80,7 @@ type dumpTest struct {
 var dumpTests = make([]dumpTest, 0)
 
 // addDumpTest is a helper method to append the passed input and desired result
-// to dumpTests
+// to dumpTests.
 func addDumpTest(in interface{}, wants ...string) {
 	test := dumpTest{in, wants}
 	dumpTests = append(dumpTests, test)
@@ -1038,5 +1038,4 @@ func TestDumpSortedKeys(t *testing.T) {
 	if s != expected {
 		t.Errorf("Sorted keys mismatch:\n  %v %v", s, expected)
 	}
-
 }

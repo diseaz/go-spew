@@ -75,7 +75,7 @@ type embedwrap struct {
 }
 
 // panicer is used to intentionally cause a panic for testing spew properly
-// handles them
+// handles them.
 type panicer int
 
 func (p panicer) String() string {
@@ -131,7 +131,9 @@ type sortTestCase struct {
 	expected []reflect.Value
 }
 
-func helpTestSortValues(tests []sortTestCase, cs *spew.ConfigState, t *testing.T) {
+func helpTestSortValues(t *testing.T, tests []sortTestCase, cs *spew.ConfigState) {
+	t.Helper()
+
 	getInterfaces := func(values []reflect.Value) []interface{} {
 		interfaces := []interface{}{}
 		for _, v := range values {
@@ -225,7 +227,7 @@ func TestSortValues(t *testing.T) {
 		},
 	}
 	cs := spew.ConfigState{DisableMethods: true, SpewKeys: false}
-	helpTestSortValues(tests, &cs, t)
+	helpTestSortValues(t, tests, &cs)
 }
 
 // TestSortValuesWithMethods ensures the sort functionality for relect.Value
@@ -260,7 +262,7 @@ func TestSortValuesWithMethods(t *testing.T) {
 		},
 	}
 	cs := spew.ConfigState{DisableMethods: false, SpewKeys: false}
-	helpTestSortValues(tests, &cs, t)
+	helpTestSortValues(t, tests, &cs)
 }
 
 // TestSortValuesWithSpew ensures the sort functionality for relect.Value
@@ -294,5 +296,5 @@ func TestSortValuesWithSpew(t *testing.T) {
 		},
 	}
 	cs := spew.ConfigState{DisableMethods: true, SpewKeys: true}
-	helpTestSortValues(tests, &cs, t)
+	helpTestSortValues(t, tests, &cs)
 }

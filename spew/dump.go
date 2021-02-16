@@ -237,7 +237,7 @@ func (d *dumpState) dumpSlice(v reflect.Value) {
 	if doHexDump {
 		indent := strings.Repeat(d.cs.Indent, d.depth)
 		str := indent + hex.Dump(buf)
-		str = strings.Replace(str, "\n", "\n"+indent, -1)
+		str = strings.ReplaceAll(str, "\n", "\n"+indent)
 		str = strings.TrimRight(str, d.cs.Indent)
 		d.w.Write([]byte(str))
 		return
@@ -302,14 +302,14 @@ func (d *dumpState) dump(v reflect.Value, asInterface bool) {
 		d.w.Write(openParenBytes)
 		if valueLen != 0 {
 			d.w.Write(lenEqualsBytes)
-			printInt(d.w, int64(valueLen), 10)
+			printInt(d.w, int64(valueLen))
 		}
 		if !d.cs.DisableCapacities && valueCap != 0 {
 			if valueLen != 0 {
 				d.w.Write(spaceBytes)
 			}
 			d.w.Write(capEqualsBytes)
-			printInt(d.w, int64(valueCap), 10)
+			printInt(d.w, int64(valueCap))
 		}
 		d.w.Write(closeParenBytes)
 		d.w.Write(spaceBytes)
@@ -334,7 +334,7 @@ func (d *dumpState) dump(v reflect.Value, asInterface bool) {
 		printBool(d.w, v.Bool())
 
 	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int:
-		printInt(d.w, v.Int(), 10)
+		printInt(d.w, v.Int())
 
 	case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uint:
 		printUint(d.w, v.Uint(), 10)

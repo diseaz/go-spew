@@ -160,7 +160,7 @@ func ExampleConfigState() {
 }
 
 // This example demonstrates how to use ConfigState.Dump to dump variables to
-// stdout
+// stdout.
 func ExampleConfigState_Dump() {
 	// See the top-level Dump example for details on the types used in this
 	// example.
