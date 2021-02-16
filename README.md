@@ -1,7 +1,7 @@
 go-spew
 =======
 
-[![Build Status](https://img.shields.io/travis/diseaz/go-spew.svg)](https://travis-ci.org/diseaz/go-spew)
+[![Build Status](https://www.travis-ci.com/diseaz/go-spew.svg?branch=master)](https://www.travis-ci.com/github/diseaz/go-spew)
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
 [![Coverage Status](https://img.shields.io/coveralls/diseaz/go-spew.svg)](https://coveralls.io/r/diseaz/go-spew?branch=master)
 
@@ -54,7 +54,7 @@ str := spew.Sdump(myVar1, myVar2, ...)
 Alternatively, if you would prefer to use format strings with a compacted inline
 printing style, use the convenience wrappers Printf, Fprintf, etc with %v (most
 compact), %+v (adds pointer addresses), %#v (adds types), or %#+v (adds types
-and pointer addresses): 
+and pointer addresses):
 
 ```Go
 spew.Printf("myVar1: %v -- myVar2: %+v", myVar1, myVar2)
