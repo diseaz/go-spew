@@ -4,10 +4,10 @@ os:
 dist: xenial
 go_import_path: github.com/diseaz/go-spew
 go:
-    - 1.13.x
+    - 1.17.x
     - tip
 install:
-    - go get -v github.com/golangci/golangci-lint@v1.36.0
+    - go get -v github.com/golangci/golangci-lint@v1.62.2
 script:
     - export PATH=$PATH:$HOME/gopath/bin
     - export GORACE="halt_on_error=1"
