@@ -2,13 +2,11 @@ linters:
   disable-all: true
   enable:
     - asciicheck
-    - bodyclose
-    - deadcode
-    - depguard
+    - contextcheck
+    - copyloopvar
     - dogsled
     - errcheck
     - errorlint
-    - exportloopref
     - gci
     - gocritic
     - godot
@@ -16,58 +14,35 @@ linters:
     - gofmt
     - goheader
     - goimports
-    - golint
     - gomodguard
     - goprintffuncname
-    - ifshort
+    - gosimple
+    - govet
     - ineffassign
-    - interfacer
     - lll
     - makezero
-    - maligned
     - misspell
     - nakedret
     - noctx
     - nolintlint
     - prealloc
     - predeclared
+    - revive
     - rowserrcheck
-    - scopelint
     - sqlclosecheck
-    - structcheck
+    - staticcheck
     - stylecheck
     - thelper
     - tparallel
     - typecheck
     - unconvert
     - unparam
-    - varcheck
+    - unused
     - whitespace
-
-    # Don't enable:
-    # - dupl
-    # - exhaustive
-    # - exhaustivestruct
-    # - forbidigo
-    # - funlen
-    # - gochecknoglobals
-    # - gochecknoinits
-    # - gocognit
-    # - goconst
-    # - gocyclo
-    # - goerr113
-    # - gofumpt
-    # - gomnd
-    # - nestif
-    # - nlreturn
-    # - paralleltest
-    # - testpackage
-    # - wrapcheck
-    # - wsl
 
 issues:
   exclude:
     - 'Error return value of .[a-zA-Z0-9_.]+\.Write. is not checked'
 
 service:
-  golangci-lint-version: 1.36.x # use the fixed version to not introduce new linters unexpectedly
+  golangci-lint-version: 1.62.x # use the fixed version to not introduce new linters unexpectedly
